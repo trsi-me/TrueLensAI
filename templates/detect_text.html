@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}News Detection — TrueLens AI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/detect.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="page-detect">
+  <h1>Fake News Detection</h1>
+  <p class="page-lead">Paste the news text below and click "Analyze Now". The result is displayed without reloading the page.</p>
+  <label class="visually-hidden" for="news-text">News text</label>
+  <textarea id="news-text" class="textarea-detect" placeholder="Paste the news text here…"></textarea>
+  <div class="detect-actions">
+    <button type="button" class="btn-primary" id="btn-analyze-text">Analyze Now</button>
+    <button type="button" class="btn-secondary" id="btn-save-text">Save to History</button>
+  </div>
+  <div class="loading-wrap" id="text-loading" aria-live="polite">
+    <div class="spinner" role="status"></div>
+    <span>Analyzing…</span>
+  </div>
+  <div class="alert-error" id="text-error" role="alert"></div>
+  <div class="result-panel" id="text-result">
+    <div class="result-label" id="text-result-label"></div>
+    <div class="confidence-bar-wrap">
+      <label>Confidence</label>
+      <div class="progress-track">
+        <div class="progress-fill" id="text-confidence-fill"></div>
+      </div>
+    </div>
+    <p class="meta-line" id="text-meta-time"></p>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/text_detect.js') }}"></script>
+{% endblock %}

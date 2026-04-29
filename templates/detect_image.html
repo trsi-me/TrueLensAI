@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Image Detection — TrueLens AI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/detect.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="page-detect">
+  <h1>Fake Image Detection</h1>
+  <p class="page-lead">Drag an image into the box or click to select. Supported formats: PNG, JPG, JPEG, GIF, WEBP, BMP. Maximum 20 MB.</p>
+  <input type="file" id="image-input" class="visually-hidden" accept=".png,.jpg,.jpeg,.gif,.webp,.bmp,image/*" />
+  <div class="drop-zone" id="image-drop" role="button" tabindex="0" aria-label="Image upload area">
+    <p>Drag image here or click to select</p>
+  </div>
+  <div class="preview-wrap" id="image-preview">
+    <img id="image-preview-img" alt="Image preview" />
+    <p class="file-meta" id="image-file-meta"></p>
+  </div>
+  <div class="detect-actions">
+    <button type="button" class="btn-primary" id="btn-analyze-image">Analyze Image</button>
+    <button type="button" class="btn-secondary" id="btn-save-image">Save to History</button>
+  </div>
+  <div class="loading-wrap" id="image-loading">
+    <div class="spinner"></div>
+    <span>Analyzing…</span>
+  </div>
+  <div class="alert-error" id="image-error"></div>
+  <div class="result-panel" id="image-result">
+    <div class="result-label" id="image-result-label"></div>
+    <div class="confidence-bar-wrap">
+      <label>Confidence</label>
+      <div class="progress-track">
+        <div class="progress-fill" id="image-confidence-fill"></div>
+      </div>
+    </div>
+    <p class="meta-line" id="image-meta-time"></p>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/image_detect.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,121 @@
+/* Home page */
+.hero {
+  text-align: center;
+  padding: 2.5rem 0 2rem;
+}
+
+.hero h1 {
+  font-size: 36px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  line-height: 1.35;
+}
+
+.hero-lead {
+  font-size: 16px;
+  color: #a0aec0;
+  max-width: 640px;
+  margin: 0 auto 1.75rem;
+  line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.stats-section {
+  margin-top: 2.5rem;
+}
+
+.stats-section h2 {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.stats-note {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #8a95a8;
+  margin: -0.35rem auto 1.1rem;
+  max-width: 520px;
+  line-height: 1.55;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.stat-item {
+  background: #0d1b2a;
+  border-radius: 14px;
+  border: 1px solid #1e3a5f;
+  box-shadow: 0 4px 20px rgba(0, 191, 255, 0.08);
+  padding: 1.25rem;
+  text-align: center;
+  transition: box-shadow 0.2s ease;
+}
+
+.stat-item:hover {
+  box-shadow: 0 4px 24px rgba(0, 191, 255, 0.12);
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #00e5ff;
+  margin-bottom: 0.35rem;
+}
+
+.stat-label {
+  font-size: 15px;
+  color: #c0c8d8;
+}
+
+.how-section {
+  margin-top: 3rem;
+}
+
+.how-section h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.step-card {
+  background: #0d1b2a;
+  border-radius: 14px;
+  border: 1px solid #1e3a5f;
+  box-shadow: 0 4px 20px rgba(0, 191, 255, 0.08);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.step-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1rem;
+  color: #1e90ff;
+}
+
+.step-card h3 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+}
+
+.step-card p {
+  margin: 0;
+  font-size: 15px;
+}

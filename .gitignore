@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.env
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# بيانات تدريب ضخمة (CSV + صور)
+datasate/
+
+# نماذج ML (pkl / h5 كبيرة جداً لـ GitHub)
+ml_models/saved_models/
+*.h5
+*.pkl
+*.pth
+*.ckpt
+*.onnx
+*.pb
+*.keras
+
+# رفع المستخدمين + قاعدة محلية
+assets/uploads/
+database/*.db
+*.sqlite
+*.sqlite3
+
+# أدوات / نظام
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Kaggle credentials (لا ترفعها أبداً)
+kaggle.json

@@ -1,0 +1,200 @@
+/* About page */
+.about-page {
+  max-width: 820px;
+}
+
+.about-page code {
+  font-size: 0.9em;
+  color: #7dd3fc;
+  word-break: break-word;
+}
+
+.about-muted {
+  color: #a0aec0;
+  margin-top: 0;
+}
+
+.about-muted-sm {
+  color: #8a95a8;
+  font-size: 0.92rem;
+}
+
+.about-p {
+  margin: 0;
+  color: #a0aec0;
+  line-height: 1.8;
+}
+
+.about-p-spaced {
+  margin: 0 0 0.75rem;
+  color: #a0aec0;
+}
+
+.about-code-path {
+  margin: 0;
+  color: #e8ecf4;
+}
+
+.about-tight-below {
+  margin: 0 0 0.5rem;
+}
+
+.about-block-below {
+  margin: 0 0 0.75rem;
+}
+
+.about-label-below {
+  margin: 0.75rem 0 0.35rem;
+}
+
+.about-label-tight {
+  margin: 1rem 0 0.35rem;
+}
+
+.about-lead {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: #b8c0d0;
+  margin-bottom: 2rem;
+}
+
+.about-section {
+  margin-bottom: 2.25rem;
+}
+
+.about-section h2 {
+  margin-bottom: 1rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #1e3a5f;
+}
+
+.dataset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.dataset-card {
+  background: #0d1b2a;
+  border: 1px solid #1e3a5f;
+  border-radius: 14px;
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 4px 20px rgba(0, 191, 255, 0.06);
+}
+
+.dataset-card h3 {
+  font-size: 1.05rem;
+  color: #ffffff;
+  margin: 0 0 0.75rem;
+}
+
+.dataset-card ul {
+  margin: 0;
+  padding-right: 1.15rem;
+  color: #a0aec0;
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.dataset-card li {
+  margin-bottom: 0.4rem;
+}
+
+.dataset-meta {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #1e3a5f;
+  font-size: 0.88rem;
+  color: #8a95a8;
+}
+
+.metric-table-wrap {
+  overflow-x: auto;
+  margin: 0.75rem 0 1rem;
+  border-radius: 10px;
+  border: 1px solid #1e3a5f;
+}
+
+.metric-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.metric-table th,
+.metric-table td {
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid #1e3a5f;
+}
+
+.metric-table th {
+  background: rgba(30, 144, 255, 0.08);
+  color: #c0c8d8;
+  font-weight: 600;
+}
+
+.metric-table tr:last-child td {
+  border-bottom: none;
+}
+
+.metric-table td:first-child {
+  color: #a0aec0;
+}
+
+.metric-table td:last-child {
+  color: #e8ecf4;
+  font-variant-numeric: tabular-nums;
+}
+
+.train-subsection {
+  margin-bottom: 1.5rem;
+}
+
+.train-subsection h3 {
+  font-size: 1rem;
+  color: #c0c8d8;
+  margin: 0 0 0.65rem;
+}
+
+.note-list {
+  margin: 0.5rem 0 0;
+  padding-right: 1.15rem;
+  color: #a0aec0;
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.note-list li {
+  margin-bottom: 0.5rem;
+}
+
+.callout {
+  background: rgba(255, 180, 80, 0.08);
+  border: 1px solid rgba(255, 180, 80, 0.25);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  font-size: 0.92rem;
+  color: #d4c4a8;
+  margin-top: 1rem;
+  line-height: 1.65;
+}
+
+.tech-list {
+  margin: 0;
+  padding-right: 1.15rem;
+  color: #a0aec0;
+  line-height: 1.8;
+}
+
+.tech-list li {
+  margin-bottom: 0.45rem;
+}
+
+@media (max-width: 480px) {
+  .metric-table th,
+  .metric-table td {
+    padding: 0.5rem 0.55rem;
+    font-size: 0.85rem;
+  }
+}

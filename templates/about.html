@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}About — TrueLens AI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="about-page">
+  <h1>About TrueLens AI</h1>
+  <p class="about-lead">
+    TrueLens AI is a locally-running web platform for analysing text and visual content: it estimates the probability
+    that a news article, image, or video is fake or AI-generated versus authentic, and displays a confidence score
+    and a clear decision in English without requiring cloud services at runtime.
+  </p>
+
+  <section class="about-section" aria-labelledby="tech-heading">
+    <h2 id="tech-heading">Technologies Used</h2>
+    <ul class="tech-list">
+      <li><strong>Flask:</strong> Web framework for serving pages and JSON APIs for detection and history.</li>
+      <li><strong>SQLite:</strong> Stores the scan history and statistics in a single file.</li>
+      <li><strong>scikit-learn:</strong> TF-IDF pipeline with a machine-learning classifier for the news model.</li>
+      <li><strong>TensorFlow / Keras:</strong> EfficientNetB0 with transfer learning for the image model.</li>
+      <li><strong>OpenCV:</strong> Extracts frames from video and analyses them with the image model.</li>
+    </ul>
+  </section>
+
+  <section class="about-section" aria-labelledby="datasets-heading">
+    <h2 id="datasets-heading">Datasets Used</h2>
+    <p class="about-muted">
+      Training relies on two public datasets from Kaggle; files are expected under the <code>datasate/</code> folder as described in the project guide.
+    </p>
+    <div class="dataset-grid">
+      <article class="dataset-card">
+        <h3>WELFake — News Detection (Text)</h3>
+        <ul>
+          <li><strong>Source:</strong> Kaggle — <em>Fake News Classification (WELFake)</em>.</li>
+          <li><strong>Content:</strong> News texts with binary labels (Fake / Real).</li>
+          <li><strong>Usage:</strong> Train a <code>TF-IDF</code> pipeline with a classifier (e.g. Passive Aggressive) and save the model and vectoriser with joblib.</li>
+          <li><strong>Expected file:</strong> <code>WELFake_Dataset.csv</code> inside <code>datasate/</code>.</li>
+        </ul>
+        <p class="dataset-meta">
+          Can be downloaded manually from the dataset page after logging in, or via the download script if Kaggle API credentials are available.
+        </p>
+      </article>
+      <article class="dataset-card">
+        <h3>CIFAKE — Image Detection</h3>
+        <ul>
+          <li><strong>Source:</strong> Kaggle — <em>CIFAKE: Real and AI-Generated Synthetic Images</em>.</li>
+          <li><strong>Content:</strong> Real and generated images organised into <code>REAL</code> and <code>FAKE</code> folders.</li>
+          <li><strong>Usage:</strong> Train EfficientNetB0 on the training folder (e.g. <code>archive/train</code>) with optional evaluation on <code>archive/test</code> if present.</li>
+          <li><strong>Size:</strong> Relatively large; download and extract under <code>datasate/archive</code>.</li>
+        </ul>
+        <p class="dataset-meta">
+          The folder structure must allow Keras <code>flow_from_directory</code> to recognise both classes.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="about-section" aria-labelledby="training-heading">
+    <h2 id="training-heading">Training Results (Documented Local Run)</h2>
+    <p class="about-muted">
+      The tables below are from a local run (Python 3.10, TensorFlow/Keras). Paths are relative to the project root; numbers may differ when retraining.
+    </p>
+
+    <div class="train-subsection">
+      <h3>Text Model (WELFake + TF-IDF + Classifier)</h3>
+      <p class="about-muted-sm about-tight-below">
+        After running <code>scripts/train_text_model.py</code> the following files are saved:
+      </p>
+      <div class="metric-table-wrap">
+        <table class="metric-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Path</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Saved classifier</td>
+              <td><code>ml_models/saved_models/text_model.pkl</code></td>
+            </tr>
+            <tr>
+              <td>TF-IDF vectoriser</td>
+              <td><code>ml_models/saved_models/tfidf_vectorizer.pkl</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="train-subsection">
+      <h3>Image Model (CIFAKE — EfficientNetB0)</h3>
+      <p class="about-p-spaced about-block-below">
+        During training <strong>20&nbsp;000</strong> images were found in <strong>2 classes</strong> (<code>REAL</code> / <code>FAKE</code>).
+      </p>
+      <p class="about-muted-sm about-tight-below">Keras progress line (example from the run):</p>
+      <div class="metric-table-wrap">
+        <table class="metric-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Steps (batch)</td>
+              <td>2500 / 2500</td>
+            </tr>
+            <tr>
+              <td>Total time</td>
+              <td>≈ 5570 s</td>
+            </tr>
+            <tr>
+              <td>Average time per step</td>
+              <td>≈ 2 s/step</td>
+            </tr>
+            <tr>
+              <td><code>loss</code></td>
+              <td>0.6931</td>
+            </tr>
+            <tr>
+              <td><code>accuracy</code></td>
+              <td>0.5000</td>
+            </tr>
+            <tr>
+              <td><code>val_loss</code></td>
+              <td>0.6931</td>
+            </tr>
+            <tr>
+              <td><code>val_accuracy</code></td>
+              <td>0.5000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="about-muted-sm about-label-below">Saved model:</p>
+      <p class="about-code-path"><code>ml_models/saved_models/image_model.h5</code></p>
+      <p class="about-muted-sm about-label-tight">Evaluation on a held-out test set (<code>datasate/archive/test</code>) if present:</p>
+      <div class="metric-table-wrap">
+        <table class="metric-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>loss</code></td>
+              <td>0.6931</td>
+            </tr>
+            <tr>
+              <td><code>accuracy</code></td>
+              <td>0.5000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="note-list">
+        <li>The script may print a <strong>warning</strong> when <code>val_accuracy</code> is below <strong>90%</strong> — it is advisable to review the data, number of epochs, and learning rate.</li>
+        <li>Keras may show a notice when saving in HDF5 (<code>.h5</code>) format that it is a legacy format; the recommended alternative going forward is the native format such as <code>.keras</code>.</li>
+        <li><code>loss</code> values close to <strong>ln(2) ≈ 0.693</strong> with accuracy <strong>0.50</strong> typically mean the model is not performing better than random guessing in that run — check class balance, image path validity, and training settings before relying on the result.</li>
+      </ul>
+      <div class="callout" role="note">
+        Common targets in the literature for such tasks can reach higher accuracy (e.g. text above 90% and images near 90% with good tuning). The figures above are a <strong>measurement from a specific training session</strong> and are not a guarantee of current production performance.
+      </div>
+    </div>
+  </section>
+
+  <section class="about-section" aria-labelledby="video-heading">
+    <h2 id="video-heading">Video</h2>
+    <p class="about-p">
+      There is no separate video training: a limited number of frames are extracted and the image model is applied to each, then the results (mean and confidence) are aggregated for an overall decision.
+    </p>
+  </section>
+</div>
+{% endblock %}

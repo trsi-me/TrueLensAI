@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Video Detection — TrueLens AI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/detect.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="page-detect">
+  <h1>Fake Video Detection</h1>
+  <p class="page-lead">
+    Upload a video file for analysis. Processing may take longer depending on file size. Maximum size is 100 MB.
+  </p>
+  <input type="file" id="video-input" class="visually-hidden" accept=".mp4,.avi,.mov,.mkv,.webm,video/*" />
+  <div class="drop-zone" id="video-drop" role="button" tabindex="0">
+    <p>Drag video here or click to select</p>
+  </div>
+  <div class="preview-wrap" id="video-preview">
+    <video id="video-preview-el" controls playsinline></video>
+    <p class="file-meta" id="video-file-meta"></p>
+  </div>
+  <div class="detect-actions">
+    <button type="button" class="btn-primary" id="btn-analyze-video">Analyze Video</button>
+    <button type="button" class="btn-secondary" id="btn-save-video">Save to History</button>
+  </div>
+  <div class="video-progress-wrap" id="video-progress-wrap">
+    <div class="video-progress-track">
+      <div class="video-progress-fill" id="video-progress-fill"></div>
+    </div>
+    <p class="meta-line">Processing…</p>
+  </div>
+  <div class="loading-wrap" id="video-loading">
+    <div class="spinner"></div>
+    <span>Extracting frames and analyzing…</span>
+  </div>
+  <div class="alert-error" id="video-error"></div>
+  <div class="result-panel" id="video-result">
+    <div class="result-label" id="video-result-label"></div>
+    <div class="confidence-bar-wrap">
+      <label>Confidence</label>
+      <div class="progress-track">
+        <div class="progress-fill" id="video-confidence-fill"></div>
+      </div>
+    </div>
+    <p class="meta-line" id="video-meta-time"></p>
+    <p class="meta-line" id="video-frames-line"></p>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/video_detect.js') }}"></script>
+{% endblock %}

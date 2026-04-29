@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{% block title %}TrueLens AI{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}" />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    <header class="site-header" id="site-header">
+      <div class="nav-inner">
+        <a class="nav-brand" href="{{ url_for('main.index') }}">
+          <img src="{{ url_for('assets_files', filename='images/Logo.png') }}" alt="TrueLens AI Logo" width="48" height="48" />
+          <span class="nav-brand-text">
+            <span class="nav-brand-title">TrueLens AI</span>
+            <span class="nav-brand-sub">Multimedia Fake Detection System</span>
+          </span>
+        </a>
+        <button
+          type="button"
+          class="nav-toggle"
+          id="nav-toggle"
+          aria-expanded="false"
+          aria-controls="nav-menu"
+          aria-label="Toggle navigation menu"
+        >
+          <span class="nav-toggle-inner" aria-hidden="true">
+            <span class="nav-toggle-bar nav-toggle-bar--top"></span>
+            <span class="nav-toggle-bar nav-toggle-bar--bottom"></span>
+          </span>
+        </button>
+        <nav class="nav-links" id="nav-menu" aria-label="Main navigation">
+          <a href="{{ url_for('main.index') }}">Home</a>
+          <a href="{{ url_for('text.detect_text_page') }}">News Detection</a>
+          <a href="{{ url_for('image.detect_image_page') }}">Image Detection</a>
+          <a href="{{ url_for('video.detect_video_page') }}">Video Detection</a>
+          <a href="{{ url_for('history.history_page') }}">History</a>
+          <a href="{{ url_for('main.about') }}">About</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">
+      <span>TrueLens AI — 2026</span>
+    </footer>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
