@@ -1,5 +1,5 @@
-# Render Blueprint — ضع الملف في جذر الريبو الذي يُرفَع إلى GitHub ثم اربطه من لوحة Render.
-# TrueLensAI: Flask + TensorFlow — البناء قد يستغرق وقتاً طويلاً؛ خطة مجانية قد تفتقر للذاكرة لـ TF.
+# Render Blueprint — ضع الملف في جذر الريبو المربوط بـ GitHub ثم New Blueprint في لوحة Render.
+# إذا جذر الريبو ليس مجلد TrueLensAI، أضف: rootDir: المسار/إلى/TrueLensAI
 services:
   - type: web
     runtime: python
