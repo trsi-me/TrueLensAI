@@ -280,6 +280,13 @@ TfidfVectorizer(max_features=50000, ngram_range=(1, 2))
 **تعذّر التنزيل عبر الطرفية أو Kaggle API**  
 استخدم التنزيل اليدوي من المتصفح كما في القسم [3.1](#31-التنزيل-اليدوي-للداتاسيتات)؛ لا حاجة لـ `kaggle.json` لتلك الطريقة.
 
+**النماذج غير مرفوعة على GitHub وحجّة Render / السيرفر تطلب ملفات `saved_models`**  
+المستودع يتجنّب تضمين `.h5`/`.pkl` لضخامتها. الخيارات: درّب محلياً كما في أقسام [3.2](#32-الخطوة-الأولى-تدريب-نموذج-الأخبار) و [3.3](#33-الخطوة-الثانية-تدريب-نموذج-الصور)، أو ارفع النماذج كـ Release/ملف عام واضبط متغيرات البيئة ثم خلال البناء يشغَّل السكربت `scripts/fetch_pretrained_models.py`:
+- **`PRETRAINED_MODELS_BASE_URL`** — عنوان أساس يُكمَّل بأسماء الملفات الثلاثة (`image_model.h5`، `text_model.pkl`، `tfidf_vectorizer.pkl`).
+- أو عناوين لكل ملف: **`IMAGE_MODEL_DOWNLOAD_URL`**، **`TEXT_MODEL_DOWNLOAD_URL`**، **`TFIDF_VECTORIZER_DOWNLOAD_URL`**.
+- على خط البناء الذي يعتمد تنزيل النماذج: **`PRETRAINED_FETCH_REQUIRED=true`** لتفشل البناء إن لم يُعرَف أي رابط تنزيل.
+- **`PRETRAINED_FETCH_FORCE=true`** إعادة تنزيل حتى لو الملفات موجودة؛ **`PRETRAINED_FETCH_TIMEOUT_SECONDS`** زمن انتظار أطول تنزيل (افتراضي 7200).
+
 **Permission denied عند قراءة `WELFake_Dataset.csv`**  
 أغلق الملف إن كان مفتوحاً في Excel أو أي محرر، ثم أعد تشغيل السكربت. أو انسخ الملف إلى مجلد آخر واستخدم `python scripts/train_text_model.py --csv مسار\النسخة.csv`.
 

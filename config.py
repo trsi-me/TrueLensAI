@@ -3,6 +3,8 @@ import os
 
 
 class Config:
+    # Optional deployment: preload models via URLs (vars used by scripts/fetch_pretrained_models.py &
+    # utils/fetch_pretrained_models.py — PRETRAINED_MODELS_BASE_URL or IMAGE_MODEL_DOWNLOAD_URL / … ).
     SECRET_KEY = os.environ.get("SECRET_KEY", "truelens-ai-secret-2024")
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     # Training data under datasate/ (see README).

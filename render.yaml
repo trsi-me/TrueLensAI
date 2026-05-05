@@ -6,7 +6,7 @@ services:
     name: truelens-ai
     plan: free
     region: oregon
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && python scripts/fetch_pretrained_models.py
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 180 wsgi:application
     healthCheckPath: /
     envVars:
