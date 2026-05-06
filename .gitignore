@@ -16,15 +16,6 @@ build/
 # بيانات تدريب ضخمة (CSV + صور)
 datasate/
 
-# نماذج ML (pkl / h5 كبيرة جداً لـ GitHub) — مجلد saved_models يبقى عبر ml_models/saved_models/.gitkeep
-*.h5
-*.pkl
-*.pth
-*.ckpt
-*.onnx
-*.pb
-*.keras
-
 # رفع المستخدمين + قاعدة محلية
 assets/uploads/
 database/*.db
