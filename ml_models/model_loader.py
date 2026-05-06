@@ -3,6 +3,7 @@
 import os
 import sys
 import threading
+import traceback
 from typing import Optional
 
 from config import Config
@@ -44,6 +45,8 @@ def init_models() -> None:
             try:
                 _text_detector = TextDetector(Config.TEXT_MODEL_PATH, Config.TFIDF_PATH)
             except Exception:
+                print("TrueLens: failed to load text models.", file=sys.stderr)
+                traceback.print_exc()
                 _text_detector = None
 
     _image_detector = None
@@ -59,6 +62,8 @@ def init_models() -> None:
             try:
                 _image_detector = ImageDetector(Config.IMAGE_MODEL_PATH)
             except Exception:
+                print("TrueLens: failed to load image model.", file=sys.stderr)
+                traceback.print_exc()
                 _image_detector = None
 
     _video_detector = None
@@ -76,7 +81,8 @@ def start_models_loading_thread() -> None:
         try:
             init_models()
         except Exception:
-            pass
+            print("TrueLens: init_models() crashed.", file=sys.stderr)
+            traceback.print_exc()
 
     _models_load_thread = threading.Thread(
         target=_run, daemon=True, name="truelens-ml-loader"
