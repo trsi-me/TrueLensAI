@@ -5,7 +5,7 @@ from flask import Flask, send_from_directory
 
 from config import Config
 from database.db_handler import init_db
-from ml_models.model_loader import init_models
+from ml_models.model_loader import start_models_loading_thread
 from routes.history_routes import history_bp
 from routes.image_routes import image_bp
 from routes.main_routes import main_bp
@@ -27,7 +27,7 @@ def create_app():
     with app.app_context():
         init_db()
 
-    init_models()
+    start_models_loading_thread()
 
     app.register_blueprint(main_bp)
     app.register_blueprint(text_bp, url_prefix="/detect")
