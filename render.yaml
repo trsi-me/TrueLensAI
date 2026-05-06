@@ -6,7 +6,8 @@ services:
     name: truelens-ai
     plan: free
     region: oregon
-    buildCommand: pip install -r requirements.txt && python scripts/fetch_pretrained_models.py
+    # Native Render images ship git but not git-lfs; without a pull, *.h5 / *.pkl stay as LFS pointers.
+    buildCommand: bash scripts/render_git_lfs_pull.sh && pip install -r requirements.txt && python scripts/fetch_pretrained_models.py
     startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 180 wsgi:application
     healthCheckPath: /
     envVars:

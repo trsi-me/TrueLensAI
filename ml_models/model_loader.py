@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Load ML models once at application startup.
 import os
+import sys
 import threading
 from typing import Optional
 
@@ -12,6 +13,16 @@ _video_detector = None
 _models_load_thread: Optional[threading.Thread] = None
 
 
+def _looks_like_git_lfs_pointer(path: str) -> bool:
+    try:
+        if os.path.getsize(path) > 512:
+            return False
+        with open(path, "rb") as f:
+            return f.read(40).startswith(b"version https://git-lfs.github.com/spec/v1")
+    except OSError:
+        return False
+
+
 def init_models() -> None:
     # Load text / image / video detectors when model files exist.
     global _text_detector, _image_detector, _video_detector
@@ -21,17 +32,34 @@ def init_models() -> None:
 
     _text_detector = None
     if os.path.isfile(Config.TEXT_MODEL_PATH) and os.path.isfile(Config.TFIDF_PATH):
-        try:
-            _text_detector = TextDetector(Config.TEXT_MODEL_PATH, Config.TFIDF_PATH)
-        except Exception:
-            _text_detector = None
+        if _looks_like_git_lfs_pointer(Config.TEXT_MODEL_PATH) or _looks_like_git_lfs_pointer(
+            Config.TFIDF_PATH
+        ):
+            print(
+                "TrueLens: text_model.pkl or tfidf_vectorizer.pkl is a Git LFS pointer. "
+                "Use render_git_lfs_pull.sh in build or PRETRAINED_MODELS_BASE_URL.",
+                file=sys.stderr,
+            )
+        else:
+            try:
+                _text_detector = TextDetector(Config.TEXT_MODEL_PATH, Config.TFIDF_PATH)
+            except Exception:
+                _text_detector = None
 
     _image_detector = None
     if os.path.isfile(Config.IMAGE_MODEL_PATH):
-        try:
-            _image_detector = ImageDetector(Config.IMAGE_MODEL_PATH)
-        except Exception:
-            _image_detector = None
+        if _looks_like_git_lfs_pointer(Config.IMAGE_MODEL_PATH):
+            print(
+                "TrueLens: image_model.h5 is a Git LFS pointer (large file not on disk). "
+                "On Render, run bash scripts/render_git_lfs_pull.sh in build, or set "
+                "PRETRAINED_MODELS_BASE_URL / IMAGE_MODEL_DOWNLOAD_URL.",
+                file=sys.stderr,
+            )
+        else:
+            try:
+                _image_detector = ImageDetector(Config.IMAGE_MODEL_PATH)
+            except Exception:
+                _image_detector = None
 
     _video_detector = None
     if _image_detector is not None and _image_detector.is_loaded():
