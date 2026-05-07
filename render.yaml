@@ -6,9 +6,10 @@ services:
     name: truelens-ai
     plan: free
     region: oregon
-    # Native Render images ship git but not git-lfs; without a pull, *.h5 / *.pkl stay as LFS pointers.
-    buildCommand: bash scripts/render_git_lfs_pull.sh && pip install -r requirements.txt && python scripts/fetch_pretrained_models.py
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 180 wsgi:application
+    # LFS → auto-export image_model.tflite from .h5 during build → slim runtime (no TensorFlow on instance).
+    buildCommand: bash scripts/render_build.sh
+    # threads=1 lowers peak RAM; TFLite image model avoids loading full TensorFlow at inference.
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 1 --timeout 180 wsgi:application
     healthCheckPath: /
     envVars:
       - key: PYTHON_VERSION
@@ -17,5 +18,15 @@ services:
         value: production
       - key: TF_CPP_MIN_LOG_LEVEL
         value: "2"
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: TF_NUM_INTEROP_THREADS
+        value: "1"
+      - key: TF_NUM_INTRAOP_THREADS
+        value: "1"
+      - key: MALLOC_ARENA_MAX
+        value: "2"
+      - key: TRUELENS_IMAGE_ONLY_TFLITE
+        value: "1"
       - key: SECRET_KEY
         generateValue: true

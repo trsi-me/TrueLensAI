@@ -48,15 +48,19 @@ echo "render_git_lfs_pull: ml_models/saved_models sizes:" >&2
 ls -la ml_models/saved_models 2>/dev/null || true
 
 IMG="ml_models/saved_models/image_model.h5"
+TFL="ml_models/saved_models/image_model.tflite"
 if [[ -f "$IMG" ]]; then
   sz=$(wc -c <"$IMG" | tr -d ' ')
   echo "render_git_lfs_pull: image_model.h5 is ${sz} bytes" >&2
-  # Pointers are tiny; real Keras .h5 here is tens of MB.
   if [[ "$sz" -lt 4096 ]]; then
-    if [[ -n "${PRETRAINED_MODELS_BASE_URL:-}" || -n "${IMAGE_MODEL_DOWNLOAD_URL:-}" ]]; then
-      echo "render_git_lfs_pull: small file but PRETRAINED / IMAGE download URL set; fetch_pretrained_models may fix it." >&2
+    tfl_sz=0
+    [[ -f "$TFL" ]] && tfl_sz=$(wc -c <"$TFL" | tr -d ' ')
+    if [[ "$tfl_sz" -ge 10000 ]]; then
+      echo "render_git_lfs_pull: using image_model.tflite (${tfl_sz} bytes) instead of pointer .h5" >&2
+    elif [[ -n "${PRETRAINED_MODELS_BASE_URL:-}" || -n "${IMAGE_MODEL_DOWNLOAD_URL:-}" || -n "${IMAGE_MODEL_TFLITE_DOWNLOAD_URL:-}" ]]; then
+      echo "render_git_lfs_pull: small .h5 but download URL set; fetch_pretrained_models may fix it." >&2
     else
-      echo "render_git_lfs_pull: image_model.h5 looks like an LFS pointer (not hydrated). Add this script to buildCommand before pip, or set PRETRAINED_MODELS_BASE_URL." >&2
+      echo "render_git_lfs_pull: image_model.h5 looks like an LFS pointer (not hydrated). Add image_model.tflite, URLs, or fix LFS pull." >&2
       exit 1
     fi
   fi

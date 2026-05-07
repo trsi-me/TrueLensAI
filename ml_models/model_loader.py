@@ -14,6 +14,26 @@ _video_detector = None
 _models_load_thread: Optional[threading.Thread] = None
 
 
+def _resolve_image_model_path() -> Optional[str]:
+    """Prefer TFLite on disk (low RAM); else Keras .h5 unless TRUELENS_IMAGE_ONLY_TFLITE is set."""
+    tflite_path = Config.IMAGE_MODEL_TFLITE_PATH
+    tflite_only = os.environ.get("TRUELENS_IMAGE_ONLY_TFLITE", "").strip().lower() in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    )
+    if os.path.isfile(tflite_path) and not _looks_like_git_lfs_pointer(tflite_path):
+        return tflite_path
+    if tflite_only:
+        return None
+    if os.path.isfile(Config.IMAGE_MODEL_PATH) and not _looks_like_git_lfs_pointer(
+        Config.IMAGE_MODEL_PATH
+    ):
+        return Config.IMAGE_MODEL_PATH
+    return None
+
+
 def _looks_like_git_lfs_pointer(path: str) -> bool:
     try:
         if os.path.getsize(path) > 512:
@@ -28,7 +48,6 @@ def init_models() -> None:
     # Load text / image / video detectors when model files exist.
     global _text_detector, _image_detector, _video_detector
     from ml_models.text_detector import TextDetector
-    from ml_models.image_detector import ImageDetector
     from ml_models.video_detector import VideoDetector
 
     _text_detector = None
@@ -50,21 +69,33 @@ def init_models() -> None:
                 _text_detector = None
 
     _image_detector = None
-    if os.path.isfile(Config.IMAGE_MODEL_PATH):
-        if _looks_like_git_lfs_pointer(Config.IMAGE_MODEL_PATH):
+    img_path = _resolve_image_model_path()
+    if img_path is None:
+        if os.path.isfile(Config.IMAGE_MODEL_PATH) and _looks_like_git_lfs_pointer(
+            Config.IMAGE_MODEL_PATH
+        ):
             print(
                 "TrueLens: image_model.h5 is a Git LFS pointer (large file not on disk). "
                 "On Render, run bash scripts/render_git_lfs_pull.sh in build, or set "
-                "PRETRAINED_MODELS_BASE_URL / IMAGE_MODEL_DOWNLOAD_URL.",
+                "PRETRAINED_MODELS_BASE_URL / IMAGE_MODEL_DOWNLOAD_URL, or add image_model.tflite.",
                 file=sys.stderr,
             )
-        else:
-            try:
-                _image_detector = ImageDetector(Config.IMAGE_MODEL_PATH)
-            except Exception:
-                print("TrueLens: failed to load image model.", file=sys.stderr)
-                traceback.print_exc()
-                _image_detector = None
+        elif os.path.isfile(Config.IMAGE_MODEL_TFLITE_PATH) and _looks_like_git_lfs_pointer(
+            Config.IMAGE_MODEL_TFLITE_PATH
+        ):
+            print(
+                "TrueLens: image_model.tflite is a Git LFS pointer; run git lfs pull in build.",
+                file=sys.stderr,
+            )
+    else:
+        try:
+            from ml_models.image_detector import ImageDetector
+
+            _image_detector = ImageDetector(img_path)
+        except Exception:
+            print("TrueLens: failed to load image model.", file=sys.stderr)
+            traceback.print_exc()
+            _image_detector = None
 
     _video_detector = None
     if _image_detector is not None and _image_detector.is_loaded():

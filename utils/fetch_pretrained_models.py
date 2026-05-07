@@ -24,6 +24,13 @@ def pretrained_sources_configured() -> bool:
 
 def _configured_urls() -> list[tuple[str, str]]:
     base = os.environ.get("PRETRAINED_MODELS_BASE_URL", "").strip().rstrip("/")
+    out: list[tuple[str, str]] = []
+    # Optional: only explicit URL (not derived from PRETRAINED_MODELS_BASE_URL) to avoid 404s.
+    tflite_explicit = os.environ.get("IMAGE_MODEL_TFLITE_DOWNLOAD_URL", "").strip()
+    if tflite_explicit:
+        out.append(
+            (tflite_explicit, _dest_for(os.path.basename(Config.IMAGE_MODEL_TFLITE_PATH)))
+        )
     items: list[tuple[str, str, str]] = [
         (
             "IMAGE_MODEL_DOWNLOAD_URL",
@@ -41,7 +48,6 @@ def _configured_urls() -> list[tuple[str, str]]:
             os.path.basename(Config.TFIDF_PATH),
         ),
     ]
-    out: list[tuple[str, str]] = []
     for _env_key, explicit, filename in items:
         if explicit:
             out.append((explicit, _dest_for(filename)))

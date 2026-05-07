@@ -3,8 +3,8 @@ import os
 
 
 class Config:
-    # Optional deployment: preload models via URLs (vars used by scripts/fetch_pretrained_models.py &
-    # utils/fetch_pretrained_models.py — PRETRAINED_MODELS_BASE_URL or IMAGE_MODEL_DOWNLOAD_URL / … ).
+    # Optional deployment: preload models via URLs (scripts/utils fetch_pretrained_models.py —
+    # PRETRAINED_MODELS_BASE_URL, IMAGE_MODEL_DOWNLOAD_URL, IMAGE_MODEL_TFLITE_DOWNLOAD_URL, …).
     SECRET_KEY = os.environ.get("SECRET_KEY", "truelens-ai-secret-2024")
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     # Training data under datasate/ (see README).
@@ -23,4 +23,6 @@ class Config:
     TEXT_MODEL_PATH = os.path.join(BASE_DIR, "ml_models", "saved_models", "text_model.pkl")
     TFIDF_PATH = os.path.join(BASE_DIR, "ml_models", "saved_models", "tfidf_vectorizer.pkl")
     IMAGE_MODEL_PATH = os.path.join(BASE_DIR, "ml_models", "saved_models", "image_model.h5")
+    # Same weights as .h5 but runnable with tflite_runtime only (avoids loading full TensorFlow).
+    IMAGE_MODEL_TFLITE_PATH = os.path.join(BASE_DIR, "ml_models", "saved_models", "image_model.tflite")
     MAX_FRAMES_PER_VIDEO = 30

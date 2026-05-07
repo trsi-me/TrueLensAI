@@ -1,11 +1,4 @@
-Flask==2.3.3
-Werkzeug==2.3.7
-gunicorn==21.2.0
-scikit-learn==1.3.2
-pandas==2.0.3
-numpy==1.24.3
-joblib==1.3.2
+# Local / training: includes TensorFlow for .h5 models and export_image_model_tflite.py
+-r requirements-app.txt
 tensorflow==2.13.0
-opencv-python==4.8.1.78
-Pillow==10.0.1
 kaggle==1.5.16
