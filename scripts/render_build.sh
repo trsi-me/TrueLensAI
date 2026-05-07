@@ -2,13 +2,25 @@
 # Render build: LFS → slim deps → fetch model URLs → export .h5→.tflite if still missing → verify.
 set -euo pipefail
 
+echo "=== TrueLensAI Render build start ===" >&2
+echo "pwd: $(pwd)" >&2
+python --version >&2 || true
+pip --version >&2 || true
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 bash scripts/render_git_lfs_pull.sh
 
+echo "render_build: listing saved_models after LFS:" >&2
+ls -la ml_models/saved_models 2>/dev/null || true
+
 pip install --no-cache-dir -r requirements-app.txt
-python scripts/fetch_pretrained_models.py
+echo "render_build: running fetch_pretrained_models (if configured)..." >&2
+python scripts/fetch_pretrained_models.py || true
+
+echo "render_build: listing saved_models after fetch:" >&2
+ls -la ml_models/saved_models 2>/dev/null || true
 
 H5="ml_models/saved_models/image_model.h5"
 TFL="ml_models/saved_models/image_model.tflite"

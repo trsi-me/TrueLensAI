@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, render_template
+import os
+
+from flask import Blueprint, jsonify, render_template
 
 from database.db_handler import get_stats
 
@@ -40,3 +42,43 @@ def index():
 @main_bp.route("/about")
 def about():
     return render_template("about.html")
+
+
+@main_bp.route("/_debug/models")
+def debug_models():
+    """
+    Minimal runtime probe for Render debugging.
+    Enable by setting TRUELENS_DEBUG=1.
+    """
+    if os.environ.get("TRUELENS_DEBUG", "").strip() != "1":
+        return jsonify({"ok": False, "error": "disabled"}), 404
+    from config import Config
+    from ml_models.model_loader import get_image_detector, get_text_detector
+
+    def _sz(p: str):
+        try:
+            return os.path.getsize(p) if os.path.isfile(p) else None
+        except OSError:
+            return None
+
+    img = get_image_detector()
+    txt = get_text_detector()
+    return jsonify(
+        {
+            "ok": True,
+            "image_loaded": bool(img is not None and img.is_loaded()),
+            "text_loaded": bool(txt is not None),
+            "paths": {
+                "image_h5": Config.IMAGE_MODEL_PATH,
+                "image_tflite": Config.IMAGE_MODEL_TFLITE_PATH,
+                "text_pkl": Config.TEXT_MODEL_PATH,
+                "tfidf_pkl": Config.TFIDF_PATH,
+            },
+            "sizes": {
+                "image_h5": _sz(Config.IMAGE_MODEL_PATH),
+                "image_tflite": _sz(Config.IMAGE_MODEL_TFLITE_PATH),
+                "text_pkl": _sz(Config.TEXT_MODEL_PATH),
+                "tfidf_pkl": _sz(Config.TFIDF_PATH),
+            },
+        }
+    )
