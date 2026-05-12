@@ -2,12 +2,15 @@
 {% block title %}Image Detection — TrueLens AI{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/detect.css') }}" />
+{% if not current_user %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+{% endif %}
 {% endblock %}
 {% block content %}
 <div class="page-detect">
   <h1>Fake Image Detection</h1>
-  <p class="page-lead">Drag an image into the box or click to select. Supported formats: PNG, JPG, JPEG, GIF, WEBP, BMP. Maximum 20 MB.</p>
-  <input type="file" id="image-input" class="visually-hidden" accept=".png,.jpg,.jpeg,.gif,.webp,.bmp,image/*" />
+  <p class="page-lead">Drag an image into the box or click to select. Supports most common bitmap formats (PNG, JPEG, WebP, GIF, BMP, TIFF, HEIC, ICO, PSD, JPEG2000, DDS, PCX, TGA, Netpbm, and more). JPEG files also show an optional ELA forensic map. Vector-only files (e.g. SVG) are not supported. Maximum 20 MB.</p>
+  <input type="file" id="image-input" class="visually-hidden" accept="image/*,.tif,.tiff,.heic,.heif,.jp2,.j2k,.dds,.psd,.xbm,.pbm,.pgm,.ppm,.pcx,.tga" />
   <div class="drop-zone" id="image-drop" role="button" tabindex="0" aria-label="Image upload area">
     <p>Drag image here or click to select</p>
   </div>
@@ -17,8 +20,20 @@
   </div>
   <div class="detect-actions">
     <button type="button" class="btn-primary" id="btn-analyze-image">Analyze Image</button>
+    {% if current_user %}
     <button type="button" class="btn-secondary" id="btn-save-image">Save to History</button>
+    {% endif %}
   </div>
+  {% if not current_user %}
+  <p class="login-hint">
+    <a href="{{ url_for('auth.login', next=request.path) }}">Sign in</a> for
+    <a href="{{ url_for('history.history_page') }}">Scan History</a> (auto-saved after each successful run).
+  </p>
+  {% else %}
+  <p class="history-save-hint">
+    Successful runs go to <a href="{{ url_for('history.history_page') }}">Scan History</a> automatically.
+  </p>
+  {% endif %}
   <div class="loading-wrap" id="image-loading">
     <div class="spinner"></div>
     <span>Analyzing…</span>
@@ -33,6 +48,18 @@
       </div>
     </div>
     <p class="meta-line" id="image-meta-time"></p>
+    <p class="model-note" id="image-model-note" hidden></p>
+    <div class="ela-map-wrap" id="image-ela-wrap" hidden>
+      <h3>JPEG error level map (ELA)</h3>
+      <img id="image-ela-img" alt="ELA heatmap" />
+    </div>
+    <div class="explanations-box" id="image-explanations" hidden>
+      <h3>Indicators</h3>
+      <ul id="image-explanations-list"></ul>
+    </div>
+    <div class="report-actions">
+      <a class="btn-secondary" id="image-open-report" href="{{ url_for('main.analysis_report') }}" target="_blank" rel="noopener noreferrer" hidden>Open full report</a>
+    </div>
   </div>
 </div>
 {% endblock %}

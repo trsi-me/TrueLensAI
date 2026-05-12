@@ -103,12 +103,7 @@ def _download(url: str, dest: str) -> None:
 
 
 def fetch_if_configured(*, force: bool = False, skip_existing: bool = True) -> dict:
-    """
-    If PRETRAINED_MODELS_BASE_URL and/or per-file *_DOWNLOAD_URL env vars are set,
-    download artifacts into ml_models/saved_models/.
-
-    Returns dict: ok (bool), downloaded (list), skipped (list), errors (list of str).
-    """
+    # Uses PRETRAINED_MODELS_BASE_URL and/or *_DOWNLOAD_URL; writes under ml_models/saved_models/.
     pairs = _configured_urls()
     result: dict = {
         "ok": True,

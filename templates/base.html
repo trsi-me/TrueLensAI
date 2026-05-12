@@ -39,14 +39,40 @@
         </button>
         <nav class="nav-links" id="nav-menu" aria-label="Main navigation">
           <a href="{{ url_for('main.index') }}">Home</a>
-          <a href="{{ url_for('text.detect_text_page') }}">News Detection</a>
+          <a href="{{ url_for('text.detect_text_page') }}">News analysis</a>
           <a href="{{ url_for('image.detect_image_page') }}">Image Detection</a>
           <a href="{{ url_for('video.detect_video_page') }}">Video Detection</a>
           <a href="{{ url_for('history.history_page') }}">History</a>
+          {% if current_user %}
+          <a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+          {% endif %}
+          {% if current_user and current_user.is_admin %}
+          <a href="{{ url_for('admin.admin_home') }}">Admin</a>
+          {% endif %}
           <a href="{{ url_for('main.about') }}">About</a>
+          <span class="nav-auth" aria-label="Account">
+            {% if current_user %}
+            <a href="{{ url_for('auth.account') }}">Account</a>
+            <form class="nav-logout-form" method="post" action="{{ url_for('auth.logout') }}">
+              <button type="submit" class="nav-link-btn">Log out</button>
+            </form>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}">Log in</a>
+            <a href="{{ url_for('auth.register') }}">Sign up</a>
+            {% endif %}
+          </span>
         </nav>
       </div>
     </header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-wrap" role="status">
+      {% for category, message in messages %}
+      <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
     <main>
       {% block content %}{% endblock %}
     </main>

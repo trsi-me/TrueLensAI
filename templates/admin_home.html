@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Admin — TrueLens AI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="admin-wrap">
+  <h1>Administration</h1>
+  <p style="color:#a0aec0">User overview and global counters.</p>
+
+  <div class="admin-stats">
+    <div class="admin-stat">Users <strong>{{ users|length }}</strong> (listed max 300)</div>
+    <div class="admin-stat">Total scans <strong>{{ stats.total_scans }}</strong></div>
+    <div class="admin-stat">Fake <strong>{{ stats.fake_detected }}</strong></div>
+    <div class="admin-stat">Real <strong>{{ stats.real_detected }}</strong></div>
+    <div class="admin-stat">Uncertain <strong>{{ stats.uncertain_detected }}</strong></div>
+  </div>
+
+  <p><a class="btn-primary" href="{{ url_for('admin.admin_detections') }}">View all detection records</a></p>
+
+  <h2>Users</h2>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Email</th>
+          <th>Display name</th>
+          <th>Saved scans</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.id }}{% if u.is_admin %}<span class="badge-admin">admin</span>{% endif %}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.display_name or "—" }}</td>
+          <td>{{ u.scan_count }}</td>
+          <td>{{ u.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -12,11 +12,19 @@
     return t || "—";
   }
 
+  function badgeClass(label) {
+    if (label === "Fake") return "badge-fake";
+    if (label === "Real") return "badge-real";
+    if (label === "Uncertain") return "badge-uncertain";
+    return "";
+  }
+
   function render() {
     var f = filterSel.value;
     tbody.innerHTML = "";
     var list = allRows.filter(function (r) {
       if (f === "all") return true;
+      if (f === "uncertain") return r.result_label === "Uncertain";
       return r.detection_type === f;
     });
     if (list.length === 0) {
@@ -33,8 +41,7 @@
       var td3 = document.createElement("td");
       var span = document.createElement("span");
       span.textContent = r.result_label;
-      span.className =
-        r.result_label === "Fake" ? "badge-fake" : "badge-real";
+      span.className = badgeClass(r.result_label);
       td3.appendChild(span);
       var td4 = document.createElement("td");
       td4.textContent = (r.confidence_score * 100).toFixed(1) + "%";

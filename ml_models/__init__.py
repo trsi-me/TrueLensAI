@@ -5,6 +5,7 @@ from ml_models.model_loader import (
     get_text_detector,
     get_image_detector,
     get_video_detector,
+    wait_for_models_init,
 )
 
 __all__ = [
@@ -13,4 +14,5 @@ __all__ = [
     "get_text_detector",
     "get_image_detector",
     "get_video_detector",
+    "wait_for_models_init",
 ]

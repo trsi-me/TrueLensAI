@@ -13,7 +13,6 @@ class VideoDetector:
         self.image_detector = image_detector
 
     def extract_frame_rgb_list(self, video_path: str, max_frames: int = None):
-        """Returns frames as RGB arrays in memory without writing PNG files to disk."""
         max_f = max_frames or Config.MAX_FRAMES_PER_VIDEO
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():

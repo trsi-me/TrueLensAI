@@ -12,6 +12,12 @@
   var labelEl = document.getElementById("image-result-label");
   var barFill = document.getElementById("image-confidence-fill");
   var metaTime = document.getElementById("image-meta-time");
+  var modelNote = document.getElementById("image-model-note");
+  var elaWrap = document.getElementById("image-ela-wrap");
+  var elaImg = document.getElementById("image-ela-img");
+  var explBox = document.getElementById("image-explanations");
+  var explList = document.getElementById("image-explanations-list");
+  var openReport = document.getElementById("image-open-report");
   var fileObj = null;
   var lastPayload = null;
   var maxBytes = 20 * 1024 * 1024;
@@ -25,19 +31,14 @@
     errBox.classList.remove("is-visible");
   }
 
-  function setFile(f) {
-    if (!f) return;
-    if (f.size > maxBytes) {
-      showErr("Image size exceeds 20 MB.");
-      return;
-    }
-    hideErr();
-    fileObj = f;
-    var url = URL.createObjectURL(f);
-    previewImg.src = url;
-    preview.classList.add("is-visible");
-    meta.textContent =
-      f.name + " — " + (f.size / 1024 / 1024).toFixed(2) + " MB";
+  function fillExplanations(lines) {
+    explList.innerHTML = "";
+    (lines || []).forEach(function (line) {
+      var li = document.createElement("li");
+      li.textContent = line;
+      explList.appendChild(li);
+    });
+    explBox.hidden = !lines || lines.length === 0;
   }
 
   drop.addEventListener("click", function () {
@@ -64,6 +65,21 @@
     }
   });
 
+  function setFile(f) {
+    if (!f) return;
+    if (f.size > maxBytes) {
+      showErr("Image size exceeds 20 MB.");
+      return;
+    }
+    hideErr();
+    fileObj = f;
+    var url = URL.createObjectURL(f);
+    previewImg.src = url;
+    preview.classList.add("is-visible");
+    meta.textContent =
+      f.name + " — " + (f.size / 1024 / 1024).toFixed(2) + " MB";
+  }
+
   btnAnalyze.addEventListener("click", function () {
     if (!fileObj) {
       showErr("Please select an image first.");
@@ -71,6 +87,14 @@
     }
     hideErr();
     resultPanel.classList.remove("is-visible");
+    elaWrap.hidden = true;
+    explBox.hidden = true;
+    if (modelNote) modelNote.hidden = true;
+    if (openReport) openReport.hidden = true;
+    if (btnSave) {
+      btnSave.textContent = "Save to History";
+      btnSave.disabled = false;
+    }
     loading.classList.add("is-visible");
     var fd = new FormData();
     fd.append("file", fileObj);
@@ -92,16 +116,44 @@
           file_name: d.file_name,
           model: d.model,
           processing_time_ms: d.processing_time_ms,
+          history_id: d.history_id || null,
         };
-        labelEl.textContent = d.label;
-        labelEl.classList.remove("fake", "real");
-        labelEl.classList.add(d.label === "Fake" ? "fake" : "real");
+        var label = d.label;
+        labelEl.textContent = label;
+        labelEl.classList.remove("fake", "real", "uncertain");
+        if (label === "Fake") labelEl.classList.add("fake");
+        else if (label === "Real") labelEl.classList.add("real");
+        else labelEl.classList.add("uncertain");
         var pct = Math.round((d.confidence || 0) * 100);
         barFill.style.width = pct + "%";
-        barFill.classList.remove("is-fake", "is-real");
-        barFill.classList.add(d.label === "Fake" ? "is-fake" : "is-real");
+        barFill.classList.remove("is-fake", "is-real", "is-uncertain");
+        if (label === "Fake") barFill.classList.add("is-fake");
+        else if (label === "Real") barFill.classList.add("is-real");
+        else barFill.classList.add("is-uncertain");
         metaTime.textContent =
           "Processing time: " + (d.processing_time_ms || 0) + " ms";
+        if (d.model_label && d.model_label !== label && modelNote) {
+          modelNote.textContent =
+            "Model vote: " + d.model_label + " (shown as " + label + ").";
+          modelNote.hidden = false;
+        } else if (modelNote) {
+          modelNote.hidden = true;
+        }
+        fillExplanations(d.explanations);
+        if (d.ela_image && elaImg && elaWrap) {
+          elaImg.src = d.ela_image;
+          elaWrap.hidden = false;
+        } else if (elaWrap) {
+          elaWrap.hidden = true;
+        }
+        if (openReport) openReport.hidden = false;
+        if (d.history_id && btnSave) {
+          btnSave.textContent = "Saved to history";
+          btnSave.disabled = true;
+        } else if (btnSave) {
+          btnSave.textContent = "Save to History";
+          btnSave.disabled = false;
+        }
         resultPanel.classList.add("is-visible");
       })
       .catch(function () {
@@ -110,25 +162,36 @@
       });
   });
 
-  btnSave.addEventListener("click", function () {
-    if (!lastPayload) return;
-    fetch("/detect/image/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(lastPayload),
-    })
-      .then(function (r) {
-        return r.json();
+  if (btnSave) {
+    btnSave.addEventListener("click", function () {
+      if (!lastPayload) return;
+      if (lastPayload.history_id) {
+        alert("This run is already in Scan History.");
+        return;
+      }
+      fetch("/detect/image/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lastPayload),
       })
-      .then(function (j) {
-        if (!j.success) {
-          showErr(j.error || "Could not save.");
-          return;
-        }
-        alert("Result saved to history.");
-      })
-      .catch(function () {
-        showErr("Could not save to history.");
-      });
-  });
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (j) {
+          if (!j.success) {
+            showErr(j.error || "Could not save.");
+            return;
+          }
+          alert("Result saved to history.");
+          if (btnSave) {
+            lastPayload.history_id = j.data && j.data.id;
+            btnSave.textContent = "Saved to history";
+            btnSave.disabled = true;
+          }
+        })
+        .catch(function () {
+          showErr("Could not save to history.");
+        });
+    });
+  }
 })();

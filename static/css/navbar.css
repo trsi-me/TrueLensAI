@@ -76,6 +76,40 @@
   font-weight: 700;
 }
 
+.nav-auth {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-left: 0.25rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid #2d4a6f;
+}
+
+.nav-logout-form {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link-btn {
+  background: none;
+  border: none;
+  color: #c0c8d8;
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 0.5rem 0.85rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.nav-link-btn:hover {
+  color: #00e5ff;
+  background: rgba(30, 144, 255, 0.1);
+}
+
 /* Menu toggle button — two bars only (not three) */
 .nav-toggle {
   display: none;
@@ -238,12 +272,43 @@
   .nav-links.is-open a:nth-child(6) {
     transition-delay: 0.42s;
   }
+  .nav-auth {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+    padding-top: 0.35rem;
+    margin-top: 0.35rem;
+    border-top: 1px solid #1e3a5f;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      opacity 0.32s ease,
+      transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .nav-auth a,
+  .nav-auth .nav-link-btn {
+    font-size: 1.125rem;
+    font-weight: 700;
+    padding: 0.75rem 0.85rem;
+    border-radius: 8px;
+    text-align: left;
+  }
+  .nav-links.is-open .nav-auth {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.48s;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .nav-toggle-bar,
   .nav-links,
-  .nav-links a {
+  .nav-links a,
+  .nav-auth {
     transition-duration: 0.01ms !important;
     transition-delay: 0s !important;
     animation: none !important;

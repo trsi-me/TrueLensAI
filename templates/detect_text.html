@@ -2,31 +2,69 @@
 {% block title %}News Detection — TrueLens AI{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/detect.css') }}" />
+{% if not current_user %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+{% endif %}
 {% endblock %}
 {% block content %}
 <div class="page-detect">
-  <h1>Fake News Detection</h1>
-  <p class="page-lead">Paste the news text below and click "Analyze Now". The result is displayed without reloading the page.</p>
-  <label class="visually-hidden" for="news-text">News text</label>
-  <textarea id="news-text" class="textarea-detect" placeholder="Paste the news text here…"></textarea>
+  <h1>News article analysis</h1>
+  <p class="page-lead">
+    Paste a <strong>full news article</strong> (headline + lead is ideal). The model estimates whether the
+    <strong>wording and form</strong> resemble patterns seen in unreliable vs authentic news from training data—not
+    live fact-checking of every claim. Results update here without reloading the page.
+  </p>
+  <label class="visually-hidden" for="news-text">News article text</label>
+  <textarea
+    id="news-text"
+    class="textarea-detect"
+    placeholder="Paste the news article here (Arabic or English). Include headline and body for a stronger style signal…"
+  ></textarea>
   <div class="detect-actions">
-    <button type="button" class="btn-primary" id="btn-analyze-text">Analyze Now</button>
+    <button type="button" class="btn-primary" id="btn-analyze-text">Analyze article</button>
+    {% if current_user %}
     <button type="button" class="btn-secondary" id="btn-save-text">Save to History</button>
+    {% endif %}
   </div>
+  {% if not current_user %}
+  <p class="login-hint">
+    <a href="{{ url_for('auth.login', next=request.path) }}">Sign in</a> to keep a personal
+    <a href="{{ url_for('history.history_page') }}">Scan History</a> (saved automatically after each successful analysis).
+  </p>
+  {% else %}
+  <p class="history-save-hint">
+    Successful analyses are added to <a href="{{ url_for('history.history_page') }}">Scan History</a> automatically.
+    Use <strong>Save to History</strong> only if you need a second copy (e.g. after a failed auto-save).
+  </p>
+  {% endif %}
   <div class="loading-wrap" id="text-loading" aria-live="polite">
     <div class="spinner" role="status"></div>
-    <span>Analyzing…</span>
+    <span>Analyzing article…</span>
   </div>
   <div class="alert-error" id="text-error" role="alert"></div>
   <div class="result-panel" id="text-result">
     <div class="result-label" id="text-result-label"></div>
     <div class="confidence-bar-wrap">
-      <label>Confidence</label>
+      <label>Confidence in this assessment</label>
       <div class="progress-track">
         <div class="progress-fill" id="text-confidence-fill"></div>
       </div>
     </div>
     <p class="meta-line" id="text-meta-time"></p>
+    <p class="timing-hint">
+      TF‑IDF scoring is very fast (often well under 200&nbsp;ms). That is normal and does not mean the text was skipped.
+      If everything showed as <strong>Real</strong> before, the server now auto-detects which numeric class means “fake”
+      on the first request. You can still set <code>TRUELENS_TEXT_FAKE_CLASS=1</code> or <code>TRUELENS_TEXT_INVERT=1</code>,
+      or turn auto off with <code>TRUELENS_TEXT_AUTO_FAKE_CLASS=0</code> (see README).
+    </p>
+    <p class="model-note" id="text-model-note" hidden></p>
+    <div class="explanations-box" id="text-explanations" hidden>
+      <h3>Style &amp; form indicators</h3>
+      <ul id="text-explanations-list"></ul>
+    </div>
+    <div class="report-actions">
+      <a class="btn-secondary" id="text-open-report" href="{{ url_for('main.analysis_report') }}" target="_blank" rel="noopener noreferrer" hidden>Open full report</a>
+    </div>
   </div>
 </div>
 {% endblock %}

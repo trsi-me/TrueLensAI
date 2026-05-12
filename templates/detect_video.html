@@ -2,6 +2,9 @@
 {% block title %}Video Detection — TrueLens AI{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/detect.css') }}" />
+{% if not current_user %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+{% endif %}
 {% endblock %}
 {% block content %}
 <div class="page-detect">
@@ -19,8 +22,20 @@
   </div>
   <div class="detect-actions">
     <button type="button" class="btn-primary" id="btn-analyze-video">Analyze Video</button>
+    {% if current_user %}
     <button type="button" class="btn-secondary" id="btn-save-video">Save to History</button>
+    {% endif %}
   </div>
+  {% if not current_user %}
+  <p class="login-hint">
+    <a href="{{ url_for('auth.login', next=request.path) }}">Sign in</a> for
+    <a href="{{ url_for('history.history_page') }}">Scan History</a> (auto-saved after each successful run).
+  </p>
+  {% else %}
+  <p class="history-save-hint">
+    Successful runs go to <a href="{{ url_for('history.history_page') }}">Scan History</a> automatically.
+  </p>
+  {% endif %}
   <div class="video-progress-wrap" id="video-progress-wrap">
     <div class="video-progress-track">
       <div class="video-progress-fill" id="video-progress-fill"></div>
@@ -42,6 +57,15 @@
     </div>
     <p class="meta-line" id="video-meta-time"></p>
     <p class="meta-line" id="video-frames-line"></p>
+    <p class="model-note" id="video-model-note" hidden></p>
+    <div class="audio-box" id="video-audio-box" hidden></div>
+    <div class="explanations-box" id="video-explanations" hidden>
+      <h3>Indicators</h3>
+      <ul id="video-explanations-list"></ul>
+    </div>
+    <div class="report-actions">
+      <a class="btn-secondary" id="video-open-report" href="{{ url_for('main.analysis_report') }}" target="_blank" rel="noopener noreferrer" hidden>Open full report</a>
+    </div>
   </div>
 </div>
 {% endblock %}

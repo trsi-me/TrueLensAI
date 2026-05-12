@@ -71,7 +71,7 @@ def resolve_csv_path(csv_arg: str, glob_arg: str) -> str:
 
 
 def _read_csv_via_temp_copy(csv_path: str):
-    """Last resort: copy to a temp file then read (some locks block direct open)."""
+    # Copy to temp when another process locks the original path.
     fd, tmp = tempfile.mkstemp(suffix=".csv", prefix="welfake_")
     os.close(fd)
     try:
@@ -85,7 +85,7 @@ def _read_csv_via_temp_copy(csv_path: str):
 
 
 def _read_csv_win32_shared(csv_path: str):
-    """Open CSV with Win32 share flags (CreateFileW must use 64-bit HANDLE restype)."""
+    # Win32: FILE_SHARE_READ|WRITE; CreateFileW restype must be c_void_p (64-bit handle).
     import ctypes
     import msvcrt
 
@@ -212,10 +212,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", default=None, help="Path to CSV file")
     ap.add_argument("--glob", default=DEFAULT_CSV_GLOB, help="Glob pattern to find CSV")
+    ap.add_argument(
+        "--swap-binary-labels",
+        action="store_true",
+        help="After loading labels, set y := 1 - y (use if CSV uses 0=real, 1=fake instead of WELFake 0=fake, 1=real).",
+    )
     args = ap.parse_args()
     csv_path = resolve_csv_path(args.csv, args.glob)
     print("Using CSV:", csv_path)
     X, y = load_dataframe(csv_path)
+    if args.swap_binary_labels:
+        y = 1 - y.astype(int)
     print("Samples after filtering:", len(y))
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y

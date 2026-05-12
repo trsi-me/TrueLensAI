@@ -1,4 +1,12 @@
 /* History page */
+.history-page-hint {
+  color: #a0aec0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 1rem;
+  max-width: 48rem;
+}
+
 .history-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -82,6 +90,11 @@
   text-align: center;
   padding: 2rem;
   color: #a0aec0;
+}
+
+.badge-uncertain {
+  color: #eab308;
+  font-weight: 600;
 }
 
 .empty-msg.is-hidden {

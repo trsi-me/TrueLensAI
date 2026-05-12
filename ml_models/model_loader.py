@@ -4,7 +4,7 @@ import os
 import sys
 import threading
 import traceback
-from typing import Optional
+from typing import List, Optional
 
 from config import Config
 
@@ -14,24 +14,68 @@ _video_detector = None
 _models_load_thread: Optional[threading.Thread] = None
 
 
+def _unique_paths(*paths: str) -> List[str]:
+    seen = set()
+    out: List[str] = []
+    for p in paths:
+        if not p or p in seen:
+            continue
+        seen.add(p)
+        out.append(p)
+    return out
+
+
+def _image_tflite_candidates() -> List[str]:
+    base = Config.BASE_DIR
+    return _unique_paths(
+        Config.IMAGE_MODEL_TFLITE_PATH,
+        os.path.join(base, "ml_models", "image_model.tflite"),
+        os.path.join(base, "ml", "image_model.tflite"),
+    )
+
+
+def _image_h5_candidates() -> List[str]:
+    base = Config.BASE_DIR
+    return _unique_paths(
+        Config.IMAGE_MODEL_PATH,
+        os.path.join(base, "ml_models", "image_model.h5"),
+        os.path.join(base, "ml", "image_model.h5"),
+    )
+
+
+def _first_real_model_file(paths: List[str]) -> Optional[str]:
+    for p in paths:
+        if os.path.isfile(p) and not _looks_like_git_lfs_pointer(p):
+            return p
+    return None
+
+
 def _resolve_image_model_path() -> Optional[str]:
-    """Prefer TFLite on disk (low RAM); else Keras .h5 unless TRUELENS_IMAGE_ONLY_TFLITE is set."""
-    tflite_path = Config.IMAGE_MODEL_TFLITE_PATH
+    # TFLite first unless TRUELENS_IMAGE_PREFER_H5; TRUELENS_IMAGE_ONLY_TFLITE blocks .h5.
+    override = (os.environ.get("TRUELENS_IMAGE_MODEL_PATH") or "").strip()
+    if override:
+        if os.path.isfile(override) and not _looks_like_git_lfs_pointer(override):
+            return override
     tflite_only = os.environ.get("TRUELENS_IMAGE_ONLY_TFLITE", "").strip().lower() in (
         "1",
         "true",
         "yes",
         "on",
     )
-    if os.path.isfile(tflite_path) and not _looks_like_git_lfs_pointer(tflite_path):
-        return tflite_path
+    prefer_h5 = os.environ.get("TRUELENS_IMAGE_PREFER_H5", "").strip().lower() in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    )
+    if prefer_h5:
+        return _first_real_model_file(_image_h5_candidates())
+    p = _first_real_model_file(_image_tflite_candidates())
+    if p is not None:
+        return p
     if tflite_only:
         return None
-    if os.path.isfile(Config.IMAGE_MODEL_PATH) and not _looks_like_git_lfs_pointer(
-        Config.IMAGE_MODEL_PATH
-    ):
-        return Config.IMAGE_MODEL_PATH
-    return None
+    return _first_real_model_file(_image_h5_candidates())
 
 
 def _looks_like_git_lfs_pointer(path: str) -> bool:
@@ -44,11 +88,37 @@ def _looks_like_git_lfs_pointer(path: str) -> bool:
         return False
 
 
+def looks_like_git_lfs_pointer(path: str) -> bool:
+    return _looks_like_git_lfs_pointer(path)
+
+
+def resolve_image_model_path() -> Optional[str]:
+    return _resolve_image_model_path()
+
+
 def init_models() -> None:
     # Load text / image / video detectors when model files exist.
     global _text_detector, _image_detector, _video_detector
     from ml_models.text_detector import TextDetector
     from ml_models.video_detector import VideoDetector
+
+    remote_url = (os.environ.get("TRUELENS_ML_API_BASE_URL") or "").strip()
+    if remote_url:
+        remote_url = remote_url.rstrip("/")
+        api_key = (os.environ.get("TRUELENS_ML_API_KEY") or "").strip()
+        try:
+            from ml_models.remote_detectors import RemoteImageDetector, RemoteTextDetector
+
+            _text_detector = RemoteTextDetector(remote_url, api_key)
+            _image_detector = RemoteImageDetector(remote_url, api_key)
+            _video_detector = VideoDetector(_image_detector)
+        except Exception:
+            print("TrueLens: failed to configure remote ML API clients.", file=sys.stderr)
+            traceback.print_exc()
+            _text_detector = None
+            _image_detector = None
+            _video_detector = None
+        return
 
     _text_detector = None
     if os.path.isfile(Config.TEXT_MODEL_PATH) and os.path.isfile(Config.TFIDF_PATH):
@@ -103,7 +173,6 @@ def init_models() -> None:
 
 
 def start_models_loading_thread() -> None:
-    """Load models in a background thread so Gunicorn can bind and accept traffic immediately."""
     global _models_load_thread
     if _models_load_thread is not None and _models_load_thread.is_alive():
         return
@@ -119,6 +188,20 @@ def start_models_loading_thread() -> None:
         target=_run, daemon=True, name="truelens-ml-loader"
     )
     _models_load_thread.start()
+
+
+def wait_for_models_init(timeout: Optional[float] = None) -> None:
+    # Join background loader (skipped when TRUELENS_EAGER_LOAD_MODELS loaded sync).
+    global _models_load_thread
+    if timeout is None:
+        raw = (os.environ.get("TRUELENS_MODEL_LOAD_TIMEOUT_SEC") or "").strip()
+        try:
+            timeout = float(raw) if raw else 600.0
+        except ValueError:
+            timeout = 600.0
+    t = _models_load_thread
+    if t is not None and t.is_alive():
+        t.join(timeout=timeout)
 
 
 def get_text_detector():

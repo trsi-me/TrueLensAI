@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+import os
+
 import numpy as np
 from PIL import Image
 
 
 class _ImageDetectorKeras:
-    """Full Keras .h5 (imports TensorFlow — high RAM)."""
-
     def __init__(self, model_path: str):
         self._model_path = model_path
         self.model = None
@@ -16,31 +16,69 @@ class _ImageDetectorKeras:
     def _load(self) -> None:
         import tensorflow as tf
 
-        self.model = tf.keras.models.load_model(self._model_path)
+        # Some environments have standalone Keras that rejects DepthwiseConv2D(groups=1)
+        # serialized by older TF/Keras; strip that key during deserialization.
+        def _wrap(layer_cls):
+            orig = layer_cls.from_config.__func__
+
+            @classmethod
+            def from_config_fixed(cls, config):
+                cfg = dict(config)
+                cfg.pop("groups", None)
+                return orig(cls, cfg)
+
+            layer_cls.from_config = from_config_fixed
+
+        try:
+            _wrap(tf.keras.layers.DepthwiseConv2D)
+        except Exception:
+            pass
+
+        from tensorflow.keras.models import load_model
+
+        self.model = load_model(self._model_path, compile=False)
 
     def preprocess_image(self, image_path: str):
         img = Image.open(image_path).convert("RGB")
         img = img.resize(self.input_size)
         arr = np.asarray(img, dtype=np.float32) / 255.0
+        # Match EfficientNet preprocess_input when trained with it: scale to [-1, 1]
+        mode = os.environ.get("TRUELENS_IMAGE_PREPROCESS", "").strip().lower()
+        if mode in ("effnet", "efficientnet", "tf"):
+            arr = (arr * 2.0) - 1.0
         return np.expand_dims(arr, axis=0)
 
     def preprocess_rgb_array(self, rgb: np.ndarray):
         img = Image.fromarray(np.asarray(rgb, dtype=np.uint8), mode="RGB")
         img = img.resize(self.input_size)
         arr = np.asarray(img, dtype=np.float32) / 255.0
+        mode = os.environ.get("TRUELENS_IMAGE_PREPROCESS", "").strip().lower()
+        if mode in ("effnet", "efficientnet", "tf"):
+            arr = (arr * 2.0) - 1.0
         return np.expand_dims(arr, axis=0)
 
     def _predict_raw(self, batch: np.ndarray) -> float:
         return float(self.model.predict(batch, verbose=0)[0][0])
 
     def _result_from_sigmoid_real(self, raw: float) -> dict:
-        p_fake = 1.0 - raw
+        # raw is a sigmoid output from the model. Some training pipelines use:
+        # - raw = P(real)  (CIFAKE default)
+        # - raw = P(fake)  (other datasets)
+        # Allow flipping at runtime to avoid retraining when labels are inverted.
+        invert = os.environ.get("TRUELENS_IMAGE_INVERT", "").strip().lower() in (
+            "1",
+            "true",
+            "yes",
+            "on",
+        )
+        p_fake = raw if invert else (1.0 - raw)
         label = "Fake" if p_fake >= 0.5 else "Real"
         confidence = p_fake if label == "Fake" else (1.0 - p_fake)
         return {
             "label": label,
             "confidence": min(1.0, max(0.0, confidence)),
             "model": self._model_label,
+            "raw": raw,
         }
 
     def predict(self, image_path: str) -> dict:
@@ -58,8 +96,6 @@ class _ImageDetectorKeras:
 
 
 class _ImageDetectorTflite:
-    """TFLite interpreter only (tflite_runtime — fits small RAM hosts like Render free)."""
-
     def __init__(self, model_path: str):
         self._model_path = model_path
         self._interpreter = None
@@ -94,12 +130,18 @@ class _ImageDetectorTflite:
         img = Image.open(image_path).convert("RGB")
         img = img.resize(self.input_size)
         arr = np.asarray(img, dtype=np.float32) / 255.0
+        mode = os.environ.get("TRUELENS_IMAGE_PREPROCESS", "").strip().lower()
+        if mode in ("effnet", "efficientnet", "tf"):
+            arr = (arr * 2.0) - 1.0
         return np.expand_dims(arr, axis=0).astype(self._in_dtype)
 
     def preprocess_rgb_array(self, rgb: np.ndarray):
         img = Image.fromarray(np.asarray(rgb, dtype=np.uint8), mode="RGB")
         img = img.resize(self.input_size)
         arr = np.asarray(img, dtype=np.float32) / 255.0
+        mode = os.environ.get("TRUELENS_IMAGE_PREPROCESS", "").strip().lower()
+        if mode in ("effnet", "efficientnet", "tf"):
+            arr = (arr * 2.0) - 1.0
         return np.expand_dims(arr, axis=0).astype(self._in_dtype)
 
     def _predict_raw(self, batch: np.ndarray) -> float:
@@ -110,13 +152,20 @@ class _ImageDetectorTflite:
         return float(out[0])
 
     def _result_from_sigmoid_real(self, raw: float) -> dict:
-        p_fake = 1.0 - raw
+        invert = os.environ.get("TRUELENS_IMAGE_INVERT", "").strip().lower() in (
+            "1",
+            "true",
+            "yes",
+            "on",
+        )
+        p_fake = raw if invert else (1.0 - raw)
         label = "Fake" if p_fake >= 0.5 else "Real"
         confidence = p_fake if label == "Fake" else (1.0 - p_fake)
         return {
             "label": label,
             "confidence": min(1.0, max(0.0, confidence)),
             "model": self._model_label,
+            "raw": raw,
         }
 
     def predict(self, image_path: str) -> dict:
@@ -134,10 +183,6 @@ class _ImageDetectorTflite:
 
 
 def ImageDetector(model_path: str):
-    """
-    Return an image detector for the given path.
-    Prefer exporting image_model.tflite for low-memory production (Render free ~512MB).
-    """
     if model_path.lower().endswith(".tflite"):
         return _ImageDetectorTflite(model_path)
     return _ImageDetectorKeras(model_path)

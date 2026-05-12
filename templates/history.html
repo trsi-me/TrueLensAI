@@ -2,9 +2,24 @@
 {% block title %}Scan History — TrueLens AI{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/history.css') }}" />
+{% if not current_user %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+{% endif %}
 {% endblock %}
 {% block content %}
+{% if not current_user %}
+<div class="auth-banner">
+  <a href="{{ url_for('auth.login', next=request.path) }}">Sign in</a>
+  to view your personal scan history and save results from detection pages.
+  New user?
+  <a href="{{ url_for('auth.register') }}">Create an account</a>.
+</div>
+{% else %}
 <h1>Scan History</h1>
+<p class="history-page-hint">
+  While signed in, each successful text / image / video analysis is stored here automatically.
+  Use <strong>Delete</strong> to remove a row, or <strong>Clear All</strong> to wipe your list.
+</p>
 <div class="history-toolbar">
   <label for="history-filter">Type:</label>
   <select id="history-filter">
@@ -12,6 +27,7 @@
     <option value="text">News</option>
     <option value="image">Images</option>
     <option value="video">Video</option>
+    <option value="uncertain">Uncertain only</option>
   </select>
   <button type="button" class="btn-danger-sm" id="history-clear-all">Clear All</button>
 </div>
@@ -31,7 +47,10 @@
     <tbody id="history-tbody"></tbody>
   </table>
 </div>
+{% endif %}
 {% endblock %}
 {% block extra_js %}
+{% if current_user %}
 <script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}All detections — Admin{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="admin-wrap">
+  <h1>All detection records</h1>
+  <p><a href="{{ url_for('admin.admin_home') }}">← Admin home</a></p>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Type</th>
+          <th>Summary</th>
+          <th>Result</th>
+          <th>Conf.</th>
+          <th>When</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.user_id or "—" }}</td>
+          <td>{{ r.detection_type }}</td>
+          <td>{{ (r.input_summary or "")[:60] }}{% if r.input_summary and r.input_summary|length > 60 %}…{% endif %}</td>
+          <td>{{ r.result_label }}</td>
+          <td>{{ (r.confidence_score * 100)|round(1) }}%</td>
+          <td>{{ r.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

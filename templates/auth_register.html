@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Create account — TrueLens AI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <h1>Create account</h1>
+    <p class="auth-lead">Password must be at least 8 characters. Your email is used only for signing in.</p>
+    <form class="auth-form" method="post" action="{{ url_for('auth.register') }}" novalidate>
+      <div class="field">
+        <label for="reg-email">Email</label>
+        <input id="reg-email" name="email" type="email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="reg-name">Display name <span style="font-weight:400;color:#6b7a90">(optional)</span></label>
+        <input id="reg-name" name="display_name" type="text" autocomplete="nickname" maxlength="120" />
+      </div>
+      <div class="field">
+        <label for="reg-password">Password</label>
+        <input id="reg-password" name="password" type="password" autocomplete="new-password" required />
+      </div>
+      <div class="field">
+        <label for="reg-confirm">Confirm password</label>
+        <input id="reg-confirm" name="confirm_password" type="password" autocomplete="new-password" required />
+      </div>
+      <div class="btn-row">
+        <button type="submit" class="btn-primary">Create account</button>
+      </div>
+    </form>
+    <p class="auth-alt">
+      Already have an account?
+      <a href="{{ url_for('auth.login') }}">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

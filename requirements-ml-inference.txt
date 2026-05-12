@@ -1,0 +1,5 @@
+# ML inference worker — heavier stack than Render web (TensorFlow for .h5, or use only .tflite + tflite-runtime on Linux).
+# pip install -r requirements-ml-inference.txt
+# From repo root: gunicorn --bind 0.0.0.0:8080 --workers 1 --threads 2 services.ml_inference_server:app
+-r requirements-app.txt
+tensorflow==2.13.0

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Analysis report — TrueLens AI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="report-wrap">
+  <p class="report-kind">{{ report.kind }} analysis</p>
+  <h1 class="report-title {% if report.label == 'Fake' %}fake{% elif report.label == 'Real' %}real{% else %}uncertain{% endif %}">
+    {{ report.label }}
+  </h1>
+  <p><strong>Model confidence:</strong> {{ (report.confidence * 100)|round(1) }}%</p>
+  {% if report.model_label and report.label == 'Uncertain' %}
+  <p class="report-meta">Underlying model vote: <strong>{{ report.model_label }}</strong> (shown as Uncertain because confidence is in the ambiguous band).</p>
+  {% endif %}
+  {% if report.model %}
+  <p class="report-meta">Model: {{ report.model }}</p>
+  {% endif %}
+  {% if report.processing_time_ms is defined %}
+  <p class="report-meta">Processing time: {{ report.processing_time_ms }} ms</p>
+  {% endif %}
+  {% if report.input_summary %}
+  <p class="report-meta">Summary / file: {{ report.input_summary }}</p>
+  {% endif %}
+  {% if report.frames_analyzed is defined %}
+  <p class="report-meta">Frames analyzed: {{ report.frames_analyzed }} · score std: {{ "%.4f"|format(report.std or 0) }}</p>
+  {% endif %}
+  {% if report.audio_summary %}
+  <p class="report-meta">{{ report.audio_summary }}</p>
+  {% endif %}
+  {% if report.ela_note %}
+  <p class="report-meta">{{ report.ela_note }}</p>
+  {% endif %}
+  <h2>Indicators &amp; notes</h2>
+  <ul class="report-list">
+    {% for line in report.explanations %}
+    <li>{{ line }}</li>
+    {% endfor %}
+  </ul>
+  <p><a href="{{ url_for('dashboard.dashboard') }}">Back to dashboard</a></p>
+</div>
+{% endblock %}

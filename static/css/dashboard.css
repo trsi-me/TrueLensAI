@@ -1,0 +1,183 @@
+.dash-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.dash-lead {
+  color: #a0aec0;
+  margin-bottom: 1.5rem;
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.dash-card {
+  background: #0d1b2a;
+  border: 1px solid #1e3a5f;
+  border-radius: 12px;
+  padding: 1.1rem 1rem;
+  text-align: center;
+}
+
+.dash-card-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #8b9bb4;
+  margin-bottom: 0.35rem;
+}
+
+.dash-card-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #00e5ff;
+}
+
+.dash-section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.dash-meta {
+  color: #c0c8d8;
+  font-size: 0.95rem;
+}
+
+.dash-fake {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.dash-real {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.dash-unc {
+  color: #eab308;
+  font-weight: 600;
+}
+
+.dash-empty {
+  color: #8b9bb4;
+  margin-bottom: 1.5rem;
+}
+
+.dash-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.admin-wrap {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 2rem;
+}
+
+.admin-stat {
+  background: #0d1b2a;
+  border: 1px solid #1e3a5f;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  color: #c0c8d8;
+}
+
+.admin-stat strong {
+  display: block;
+  font-size: 1.25rem;
+  color: #00e5ff;
+  margin-top: 0.25rem;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #1e3a5f;
+  border-radius: 12px;
+  margin-top: 1rem;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid #1e3a5f;
+  text-align: left;
+  color: #a0aec0;
+}
+
+.admin-table th {
+  background: #0a1628;
+  color: #c0c8d8;
+}
+
+.badge-admin {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fde047;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  margin-left: 0.35rem;
+}
+
+.report-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.report-kind {
+  font-size: 0.85rem;
+  color: #8b9bb4;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.25rem;
+}
+
+.report-title {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.report-title.fake {
+  color: #ef4444;
+}
+
+.report-title.real {
+  color: #22c55e;
+}
+
+.report-title.uncertain {
+  color: #eab308;
+}
+
+.report-list {
+  margin: 1rem 0;
+  padding-left: 1.25rem;
+  color: #c0c8d8;
+}
+
+.report-list li {
+  margin-bottom: 0.5rem;
+}
+
+.report-meta {
+  font-size: 0.9rem;
+  color: #8b9bb4;
+  margin-top: 1.5rem;
+}

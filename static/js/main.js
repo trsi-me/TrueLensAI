@@ -2,7 +2,13 @@
 (function () {
   var path = window.location.pathname;
   document.querySelectorAll(".nav-links a").forEach(function (a) {
-    if (a.getAttribute("href") === path) {
+    var href = a.getAttribute("href");
+    if (!href || href === "#") return;
+    if (href === "/") {
+      if (path === "/") a.classList.add("is-active");
+      return;
+    }
+    if (path === href || path.startsWith(href + "/")) {
       a.classList.add("is-active");
     }
   });

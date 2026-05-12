@@ -7,10 +7,11 @@
 <section class="hero">
   <h1>AI-Powered Fake Content Detection System</h1>
   <p class="hero-lead">
-    Detect fake news, fake images, and fake videos with high accuracy using AI models trained on millions of real-world examples.
+    Estimate whether a <strong>news article</strong> (wording and form), an image, or a video resembles fake or authentic
+    patterns from training data—using models built on large labeled datasets. Always corroborate with sources.
   </p>
   <div class="hero-actions">
-    <a class="btn-primary" href="{{ url_for('text.detect_text_page') }}">Check News</a>
+    <a class="btn-primary" href="{{ url_for('text.detect_text_page') }}">Analyze news article</a>
     <a class="btn-primary" href="{{ url_for('image.detect_image_page') }}">Check Image</a>
     <a class="btn-primary" href="{{ url_for('video.detect_video_page') }}">Check Video</a>
   </div>
@@ -31,8 +32,8 @@
       <div class="stat-label">Fake Detected</div>
     </div>
     <div class="stat-item">
-      <div class="stat-value">{{ stats.real_detected }}</div>
-      <div class="stat-label">Real Confirmed</div>
+      <div class="stat-value">{{ stats.uncertain_detected }}</div>
+      <div class="stat-label">Uncertain</div>
     </div>
   </div>
 </section>
@@ -48,7 +49,7 @@
         </svg>
       </div>
       <h3>Upload Content</h3>
-      <p>Enter a news text or upload an image or video from your device — no internet connection required during analysis.</p>
+      <p>Enter a <strong>news article</strong> (headline + body) or upload an image or video from your device — no internet connection required during analysis.</p>
     </div>
     <div class="step-card">
       <div class="step-icon" aria-hidden="true">
@@ -68,7 +69,7 @@
         </svg>
       </div>
       <h3>Get the Result</h3>
-      <p>View a "Fake" or "Real" classification with a confidence score, processing time, and the option to save results to history.</p>
+      <p>View <strong>Fake</strong>, <strong>Real</strong>, or <strong>Uncertain</strong> with confidence, short indicators, optional JPEG forensics map, and save results to your personal history.</p>
     </div>
   </div>
 </section>

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Account — TrueLens AI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="auth-page" style="max-width: 520px">
+  <div class="auth-card">
+    <h1>Account</h1>
+    <p class="auth-lead">Signed in as <strong style="color:#e2e8f0">{{ user.email }}</strong></p>
+
+    <div class="account-section">
+      <h2>Profile</h2>
+      <form class="auth-form" method="post" action="{{ url_for('auth.account') }}">
+        <input type="hidden" name="action" value="profile" />
+        <div class="field">
+          <label for="acc-display">Display name</label>
+          <input
+            id="acc-display"
+            name="display_name"
+            type="text"
+            maxlength="120"
+            value="{{ user.display_name or '' }}"
+            placeholder="How we greet you (optional)"
+          />
+        </div>
+        <div class="btn-row">
+          <button type="submit" class="btn-primary">Save profile</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="account-section">
+      <h2>Change password</h2>
+      <form class="auth-form" method="post" action="{{ url_for('auth.account') }}">
+        <input type="hidden" name="action" value="password" />
+        <div class="field">
+          <label for="acc-current">Current password</label>
+          <input id="acc-current" name="current_password" type="password" autocomplete="current-password" required />
+        </div>
+        <div class="field">
+          <label for="acc-new">New password</label>
+          <input id="acc-new" name="new_password" type="password" autocomplete="new-password" required />
+        </div>
+        <div class="field">
+          <label for="acc-new2">Confirm new password</label>
+          <input id="acc-new2" name="confirm_new_password" type="password" autocomplete="new-password" required />
+        </div>
+        <div class="btn-row">
+          <button type="submit" class="btn-primary">Update password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

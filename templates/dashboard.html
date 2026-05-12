@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — TrueLens AI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="dash-wrap">
+  <h1>Dashboard</h1>
+  <p class="dash-lead">
+    Hello{% if current_user.display_name %}, <strong>{{ current_user.display_name }}</strong>{% endif %}.
+    Here is a summary of your saved analyses.
+  </p>
+
+  <div class="dash-grid">
+    <div class="dash-card">
+      <span class="dash-card-label">Total saved scans</span>
+      <span class="dash-card-value">{{ counts.total }}</span>
+    </div>
+    <div class="dash-card">
+      <span class="dash-card-label">News articles analyzed</span>
+      <span class="dash-card-value">{{ counts.by_type.text }}</span>
+    </div>
+    <div class="dash-card">
+      <span class="dash-card-label">Images</span>
+      <span class="dash-card-value">{{ counts.by_type.image }}</span>
+    </div>
+    <div class="dash-card">
+      <span class="dash-card-label">Videos</span>
+      <span class="dash-card-value">{{ counts.by_type.video }}</span>
+    </div>
+  </div>
+
+  {% if counts.last_scan %}
+  <div class="dash-section">
+    <h2>Latest saved result</h2>
+    <p class="dash-meta">
+      <strong>{{ counts.last_scan.detection_type }}</strong> —
+      <span class="{% if counts.last_scan.result_label == 'Fake' %}dash-fake{% elif counts.last_scan.result_label == 'Real' %}dash-real{% else %}dash-unc{% endif %}">{{ counts.last_scan.result_label }}</span>
+      at {{ (counts.last_scan.confidence_score * 100)|round(1) }}% confidence · {{ counts.last_scan.created_at }}
+    </p>
+  </div>
+  {% else %}
+  <p class="dash-empty">No saved scans yet. Run a detection and press “Save to History”.</p>
+  {% endif %}
+
+  <div class="dash-actions">
+    <a class="btn-primary" href="{{ url_for('text.detect_text_page') }}">News detection</a>
+    <a class="btn-primary" href="{{ url_for('image.detect_image_page') }}">Image detection</a>
+    <a class="btn-primary" href="{{ url_for('video.detect_video_page') }}">Video detection</a>
+    <a class="btn-secondary" href="{{ url_for('history.history_page') }}">Full history</a>
+    <a class="btn-secondary" href="{{ url_for('auth.account') }}">Account settings</a>
+  </div>
+</div>
+{% endblock %}

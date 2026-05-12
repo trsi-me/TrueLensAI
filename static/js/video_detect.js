@@ -78,6 +78,19 @@
     }
     hideErr();
     resultPanel.classList.remove("is-visible");
+    var audioBox = document.getElementById("video-audio-box");
+    var explBox = document.getElementById("video-explanations");
+    var explList = document.getElementById("video-explanations-list");
+    var modelNote = document.getElementById("video-model-note");
+    var openReport = document.getElementById("video-open-report");
+    if (explBox) explBox.hidden = true;
+    if (audioBox) audioBox.hidden = true;
+    if (modelNote) modelNote.hidden = true;
+    if (openReport) openReport.hidden = true;
+    if (btnSave) {
+      btnSave.textContent = "Save to History";
+      btnSave.disabled = false;
+    }
     loading.classList.add("is-visible");
     progWrap.classList.add("is-visible");
     var w = 12;
@@ -126,18 +139,54 @@
           file_name: d.file_name,
           model: d.model,
           processing_time_ms: d.processing_time_ms,
+          history_id: d.history_id || null,
         };
-        labelEl.textContent = d.label;
-        labelEl.classList.remove("fake", "real");
-        labelEl.classList.add(d.label === "Fake" ? "fake" : "real");
+        var label = d.label;
+        labelEl.textContent = label;
+        labelEl.classList.remove("fake", "real", "uncertain");
+        if (label === "Fake") labelEl.classList.add("fake");
+        else if (label === "Real") labelEl.classList.add("real");
+        else labelEl.classList.add("uncertain");
         var pct = Math.round((d.confidence || 0) * 100);
         barFill.style.width = pct + "%";
-        barFill.classList.remove("is-fake", "is-real");
-        barFill.classList.add(d.label === "Fake" ? "is-fake" : "is-real");
+        barFill.classList.remove("is-fake", "is-real", "is-uncertain");
+        if (label === "Fake") barFill.classList.add("is-fake");
+        else if (label === "Real") barFill.classList.add("is-real");
+        else barFill.classList.add("is-uncertain");
         metaTime.textContent =
           "Processing time: " + (d.processing_time_ms || 0) + " ms";
         framesLine.textContent =
           "Frames analyzed: " + (d.frames_analyzed || 0);
+        if (d.model_label && d.model_label !== label && modelNote) {
+          modelNote.textContent =
+            "Model vote: " + d.model_label + " (shown as " + label + ").";
+          modelNote.hidden = false;
+        } else if (modelNote) {
+          modelNote.hidden = true;
+        }
+        if (d.audio_summary && audioBox) {
+          audioBox.textContent = d.audio_summary;
+          audioBox.hidden = false;
+        } else if (audioBox) {
+          audioBox.hidden = true;
+        }
+        if (explList && explBox) {
+          explList.innerHTML = "";
+          (d.explanations || []).forEach(function (line) {
+            var li = document.createElement("li");
+            li.textContent = line;
+            explList.appendChild(li);
+          });
+          explBox.hidden = !(d.explanations && d.explanations.length);
+        }
+        if (openReport) openReport.hidden = false;
+        if (d.history_id && btnSave) {
+          btnSave.textContent = "Saved to history";
+          btnSave.disabled = true;
+        } else if (btnSave) {
+          btnSave.textContent = "Save to History";
+          btnSave.disabled = false;
+        }
         resultPanel.classList.add("is-visible");
       })
       .catch(function (err) {
@@ -159,25 +208,36 @@
       });
   });
 
-  btnSave.addEventListener("click", function () {
-    if (!lastPayload) return;
-    fetch("/detect/video/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(lastPayload),
-    })
-      .then(function (r) {
-        return r.json();
+  if (btnSave) {
+    btnSave.addEventListener("click", function () {
+      if (!lastPayload) return;
+      if (lastPayload.history_id) {
+        alert("This run is already in Scan History.");
+        return;
+      }
+      fetch("/detect/video/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lastPayload),
       })
-      .then(function (j) {
-        if (!j.success) {
-          showErr(j.error || "Could not save.");
-          return;
-        }
-        alert("Result saved to history.");
-      })
-      .catch(function () {
-        showErr("Could not save to history.");
-      });
-  });
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (j) {
+          if (!j.success) {
+            showErr(j.error || "Could not save.");
+            return;
+          }
+          alert("Result saved to history.");
+          if (btnSave) {
+            lastPayload.history_id = j.data && j.data.id;
+            btnSave.textContent = "Saved to history";
+            btnSave.disabled = true;
+          }
+        })
+        .catch(function () {
+          showErr("Could not save to history.");
+        });
+    });
+  }
 })();

@@ -19,7 +19,7 @@ OUT_MODEL = os.path.join(BASE_DIR, "ml_models", "saved_models", "image_model.h5"
 
 
 def _default_image_train_dir() -> str:
-    """Prefer datasate/archive/train/{FAKE,REAL}; else datasate/archive/{classes}."""
+    # Prefer datasate/archive/train/{FAKE,REAL}; else archive root with class subdirs.
     if os.path.isdir(IMAGE_TRAIN_DIR):
         return IMAGE_TRAIN_DIR
     return IMAGE_ARCHIVE_DIR
